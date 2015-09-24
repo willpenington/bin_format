@@ -5,9 +5,9 @@ defmodule BinstructorTest do
     use Binstructor.Packet
     
     defpacket do
-      a = integer 0, 8
-      b = integer 15, 8
-      c = binary <<1,2,3,4>>, 4
+      integer :a, 0, 8
+      integer :b, 15, 8
+      binary :c, <<1,2,3,4>>, 4
     end
   end
 
