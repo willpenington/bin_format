@@ -1,0 +1,2 @@
+defmodule Binstructor do
+end
