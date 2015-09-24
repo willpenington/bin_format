@@ -11,6 +11,8 @@ defmodule Binstructor.Packet do
 
     members = get_members(block)
 
+    inspect(members)
+
     quote do
       defstruct unquote(members)
       unquote(build_decode(block))
@@ -20,7 +22,7 @@ defmodule Binstructor.Packet do
   defp eval_members({:__block__, env, mem_defs}) do
   end
 
-  defp get_member({:=, _, [{name, _, _}, {_type, _, [default | _]}]}) do
+  defp get_member({_type, _, [name, default | _]}) do
     {name, default}
   end
 
@@ -33,9 +35,10 @@ defmodule Binstructor.Packet do
     |> Enum.reject(fn(x) -> x == :undefined end)
   end
 
-  defp build_decode_match({:=, env, [{name, _, _}, {type, _, params}]}) do
-    size = Enum.at(params, 1, :undefined)
-    opts = Enum.at(params, 2, [])
+  defp build_decode_match({type, env, params}) do
+    name = Enum.at(params, 0, :undefined)
+    size = Enum.at(params, 2, :undefined)
+    opts = Enum.at(params, 3, [])
     
 
     type_node = [{type, [], Elixir}]
@@ -51,7 +54,7 @@ defmodule Binstructor.Packet do
     {:::, env, [{name, [], Elixir}, opt_tree]}
   end
   
-  defp build_set_mem({:=, _env, [nnode = {name, _, _,}, {_type, _, _}]}) do
+  defp build_set_mem({_type, _, [name | _]}) do
     {name, {name, [], Elixir}}
   end
 
