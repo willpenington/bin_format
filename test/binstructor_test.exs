@@ -31,4 +31,6 @@ defmodule BinstructorTest do
     assert s.b == 23
     assert s.c == <<15, 16, 17, 18>>
   end
+
+  
 end
