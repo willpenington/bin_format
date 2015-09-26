@@ -11,6 +11,50 @@ defmodule Binstructor.DataTypes do
      @packet_members [{unquote(name), {:binary, unquote(default), unquote(size), unquote(options)}} | @packet_members]
     end
   end
+
+  defmacro float(name, default, size, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:float, unquote(default), unquote(size), unquote(options)}} | @packet_members]
+    end
+  end
+
+  defmacro bits(name, default, size, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:bits, unquote(default), unquote(size), unquote(options)}} | @packet_members]
+    end
+  end
+      
+  defmacro bitstring(name, default, size, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:bitstring, unquote(default), unquote(size), unquote(options)}} | @packet_members]
+    end
+  end
+      
+  defmacro bytes(name, default, size, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:bytes, unquote(default), unquote(size), unquote(options)}} | @packet_members]
+    end
+  end
+      
+  defmacro utf8(name, default, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:utf8, unquote(default), :undefined, unquote(options)}} | @packet_members]
+    end
+  end
+      
+  defmacro utf16(name, default, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:utf16, unquote(default), :undefined, unquote(options)}} | @packet_members]
+    end
+  end
+      
+  defmacro utf32(name, default, options \\ []) do
+    quote do
+     @packet_members [{unquote(name), {:utf32, unquote(default), :undefined, unquote(options)}} | @packet_members]
+    end
+  end
+      
+
 end
 
 defprotocol Binstructor.PacketProto do
@@ -126,6 +170,12 @@ defmodule Binstructor.Packet do
           end
         end))
       }
+    end
+  end
+
+  def build_single_binary_pattern({name, {type, _default, :undefined, _options}}) do
+    quote do
+      unquote(Macro.var(name, __MODULE__)) :: unquote(Macro.var(type,__MODULE__))
     end
   end
 
