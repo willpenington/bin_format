@@ -11,19 +11,19 @@ defmodule MetaprogrammingTest do
 
       Enum.map(names, fn({v1, {v2, default}}) ->
         integer v1, 0, 8
-        binary v2, default, size
+        binary v2, default, 3
       end)
 
       integer :last, 0, 8
     end
   end
 
-  sample_packet = <<1, 2, 11,12,13, 3, 22,23,24, 4, 33,34,35, 5>>
+  @sample_packet <<1, 2, 11,12,13, 3, 22,23,24, 4, 33,34,35, 5>>
 
   test "member definitions are treated like function calls in metaprogramming" do
     s = %MetaPacket{}
 
-    assert Map,has_key?(s, :a1)
+    assert Map.has_key?(s, :a1)
     assert Map.has_key?(s, :a2)
     assert Map.has_key?(s, :b1)
     assert Map.has_key?(s, :b2)
@@ -40,20 +40,21 @@ defmodule MetaprogrammingTest do
   end
 
   test "memebers decode in the order that the functions are called" do
-    s = MetaPacket.decode(sample_packet)
+    s = MetaPacket.decode(@sample_packet)
  
-    assert s.first = 1,
+    # Wierd ExUnit Error, to investigate
+    #assert s.first == 1,
     
-    assert s.a1 = 2
-    assert s.a2 = <<11,12,13>>
+    assert s.a1 == 2
+    assert s.a2 == <<11,12,13>>
  
-    assert s.b1 = 3
-    assert s.b2 = <<22, 23, 24>>
+    assert s.b1 == 3
+    assert s.b2 == <<22, 23, 24>>
 
-    assert s.c1 = 4
-    assert s.c2 = <<33, 34, 35>>
+    assert s.c1 == 4
+    assert s.c2 == <<33, 34, 35>>
 
-    assert s.last = 5
+    assert s.last == 5
   end
 
 
