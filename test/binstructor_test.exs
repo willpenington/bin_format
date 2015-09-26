@@ -1,7 +1,6 @@
 defmodule BinstructorTest do
   use ExUnit.Case
 
-  @sample_binary <<34, 23, 15, 16, 17, 18>>
 
   defmodule TestPacket do
     use Binstructor.Packet
@@ -11,6 +10,12 @@ defmodule BinstructorTest do
       integer :b, 15, 8
       binary :c, <<1,2,3,4>>, 4
     end
+  end
+
+  @sample_binary <<34, 23, 15, 16, 17, 18>>
+  
+  defp sample_struct do
+    %TestPacket{a: 34, b: 23, c: <<15,16,17, 18>>}
   end
 
   test "the truth" do
@@ -35,11 +40,28 @@ defmodule BinstructorTest do
   end
 
   test "encoding a struct builds a binary" do
-    s = %TestPacket{a: 34, b: 23, c: <<15,16,17, 18>>}
 
-    bin  = TestPacket.encode(s)
+    bin  = TestPacket.encode(sample_struct)
 
     assert bin == @sample_binary
+  end
+
+  test "structs can be encoded without knowing the module" do
+    bin = Binstructor.Packet.encode(sample_struct)
+
+    assert bin == @sample_binary
+  end
+
+  defmodule Dummy do
+    defstruct foo: :bar
+    def encode(_dummy) do
+      :suprise
+    end
+  end
+
+  test "encoding a struct not defined with binstructor is not supported" do
+    d = %Dummy{}
+    catch_error(Binstructor.Packet.encode(d))
   end
   
 end

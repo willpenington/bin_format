@@ -13,6 +13,10 @@ defmodule Binstructor.DataTypes do
   end
 end
 
+defprotocol Binstructor.PacketProto do
+  def encodeimpl(struct)
+end
+
 defmodule Binstructor.Packet do
 
   defmacro __using__(_opts) do
@@ -22,47 +26,32 @@ defmodule Binstructor.Packet do
   end
 
   defmacro defpacket(do: block) do
-    
-
-    #members = get_members(block)
-
-    #inspect(members)
-
-
-    quote do
-
-      mod = defmodule Packet do
-        import Binstructor.DataTypes        
-
-        @packet_members []
-
-        unquote(block)
-
-        def packet_members() do
-          @packet_members
-        end
-
-      end
-
-      Packet.packet_members()
-
-      #defstruct unquote(members)
-      #unquote(build_decode(block))
-
-      Binstructor.Packet.build_struct(members)
-      
-      Binstructor.Packet.build_decode(members)
-
-    end
-
     members = build_members(block)
 
     quote do
       unquote(build_struct(members))
       unquote(build_decode(members))
       unquote(build_encode(members))
+     
+      # Has to be in the quote block to make sure it gets executed
+      # after the module is defined 
+      Binstructor.Packet.build_proto_impl(__MODULE__)
     end
 
+  end
+
+  def encode(struct) do
+    Binstructor.PacketProto.encodeimpl(struct)
+  end
+
+  def build_proto_impl(module) do
+    Code.eval_quoted(quote do
+      defimpl Binstructor.PacketProto, for: unquote(module) do
+        def encodeimpl(spec) do
+          apply(unquote(module), :encode, [spec])
+        end
+      end
+    end)
   end
 
   def build_members(block) do
@@ -88,6 +77,7 @@ defmodule Binstructor.Packet do
       
       :code.delete(unquote(name))
       :code.purge(unquote(name))
+
 
       members
     end)
