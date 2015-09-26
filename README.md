@@ -74,13 +74,6 @@ becomes
     defpacket do
       integer :first, 0, 8
 
-      names = [{:a1, {:a2, <<1,2,3>>}}, {:b1, {:b2, <<2,3,4>>}}, {:c1, {:c2, <<3,4,5>>}}]
-
-      Enum.map(names, fn({v1, {v2, default}}) ->
-        integer v1, 0, 8
-        binary v2, default, 3
-      end)
-
       integer :a1, 0, 8
       binary :a2, <<1,2,3>>, 3
 
