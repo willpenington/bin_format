@@ -35,6 +35,8 @@ becomes
 
 ```
 defmodule Foo do
+  use Binstructor.Packet
+
   @c_default <<1,2,3,4>>
 
   defpacket do
@@ -68,7 +70,7 @@ For Example:
   end
 ```
 
-becomes
+is equivalent to
 
 ```
     defpacket do
