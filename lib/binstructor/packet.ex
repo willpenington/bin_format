@@ -60,6 +60,7 @@ defmodule Binstructor.Packet do
     quote do
       unquote(build_struct(members))
       unquote(build_decode(members))
+      unquote(build_encode(members))
     end
 
   end
@@ -107,13 +108,15 @@ defmodule Binstructor.Packet do
   def build_decode(members) do
     quote do
       def decode(unquote(build_binary_pattern(members))) do
-        %__MODULE__{
-          unquote_splicing(Enum.map(members, fn({name, _}) ->
-            quote do
-              {unquote(name), unquote(Macro.var(name, Elixir))}
-            end
-          end))
-        }
+        unquote(build_struct_pattern(members))
+      end
+    end
+  end
+
+  def build_encode(members) do
+    quote do
+      def encode(var = unquote(build_struct_pattern(members))) do
+        unquote(build_binary_pattern(members))
       end
     end
   end
@@ -124,9 +127,21 @@ defmodule Binstructor.Packet do
     end
   end
 
-  def build_single_binary_pattern({name, {type, _default, size, options}}) do
+  def build_struct_pattern(members) do
     quote do
-      unquote(Macro.var(name, Elixir)) :: unquote(Macro.var(type,Elixir))-size(unquote(size))
+      %__MODULE__{
+        unquote_splicing(Enum.map(members, fn({name, _}) ->
+          quote do
+            {unquote(name), unquote(Macro.var(name, __MODULE__))}
+          end
+        end))
+      }
+    end
+  end
+
+  def build_single_binary_pattern({name, {type, _default, size, _options}}) do
+    quote do
+      unquote(Macro.var(name, __MODULE__)) :: unquote(Macro.var(type,__MODULE__))-size(unquote(size))
     end
   end
 
