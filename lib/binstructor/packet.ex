@@ -1,8 +1,3 @@
-
-defprotocol Binstructor.PacketProto do
-  def encodeimpl(struct)
-end
-
 defmodule Binstructor.Packet do
 
   defmacro __using__(_opts) do
