@@ -5,6 +5,8 @@ defmodule Binstructor.Mixfile do
     [app: :binstructor,
      version: "0.0.1",
      elixir: "~> 1.0",
+     source_url: "https://github.com/willpenington/binstructor",
+     docs: [extras: ["README.md"]],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -27,6 +29,7 @@ defmodule Binstructor.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [{:earmark, "~> 0.1", only: :dev},
+     {:ex_doc, "~> 0.10", only: :dev}]
   end
 end
