@@ -7,6 +7,8 @@ defmodule Binstructor.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     description: description,
+     package: package,
      deps: deps]
   end
 
@@ -29,4 +31,18 @@ defmodule Binstructor.Mixfile do
   defp deps do
     []
   end
+
+  defp description do
+    """
+    Automatically generate the boilerplate to convert between binaries and
+    Elixir structs.
+    """
+  end
+
+  defp package do
+    [maintainers: ["Will Penington"],
+     licenses: ["MIT"],
+     links: %{"GitHub" => "https://github.com/willpenington/binstructor"}]
+  end
+
 end
