@@ -95,6 +95,28 @@ defmodule Binstructor.FieldType do
     end
   end
 
+
+  def padding_decode(val) when is_binary(val) do
+    quote do
+      _ :: binary-size(unquote(byte_size(val)))
+    end
+  end
+ 
+  def padding_decode(val) when is_bitstring(val) do
+    quote do
+      _ :: bitstring-size(unquote(bit_size(val)))
+    end
+  end
+
+  defmacro padding(value) do
+    quote do
+
+    record = %Binstructor.FieldType{bin_encode_pattern: unquote(Macro.escape(value)), bin_decode_pattern: padding_decode(unquote(value))}
+
+    @packet_members [record | @packet_members]
+    end
+  end
+
 end
 
 
