@@ -169,7 +169,7 @@ defmodule Binstructor.FieldType do
 
       @packet_members [record | @packet_members]
     end
-    
+
   end
 
 end
