@@ -1,66 +1,3 @@
-defmodule Binstructor.DataTypes do
-
-  defmacro integer(name, default, size, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:integer, unquote(default), unquote(size), unquote(options)}} | @packet_members]
-    end
-  end
-
-  defmacro binary(name, default, size, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:binary, unquote(default), unquote(size), unquote(options)}} | @packet_members]
-    end
-  end
-
-  defmacro float(name, default, size, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:float, unquote(default), unquote(size), unquote(options)}} | @packet_members]
-    end
-  end
-
-  defmacro bits(name, default, size, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:bits, unquote(default), unquote(size), unquote(options)}} | @packet_members]
-    end
-  end
-      
-  defmacro bitstring(name, default, size, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:bitstring, unquote(default), unquote(size), unquote(options)}} | @packet_members]
-    end
-  end
-      
-  defmacro bytes(name, default, size, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:bytes, unquote(default), unquote(size), unquote(options)}} | @packet_members]
-    end
-  end
-      
-  defmacro utf8(name, default, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:utf8, unquote(default), :undefined, unquote(options)}} | @packet_members]
-    end
-  end
-      
-  defmacro utf16(name, default, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:utf16, unquote(default), :undefined, unquote(options)}} | @packet_members]
-    end
-  end
-      
-  defmacro utf32(name, default, options \\ []) do
-    quote do
-     @packet_members [{{:member, unquote(name)}, {:utf32, unquote(default), :undefined, unquote(options)}} | @packet_members]
-    end
-  end
-
-  defmacro constant(value) do
-    quote do
-      @packet_members [{:constant, unquote(value)} | @packet_members]
-    end
-  end
-
-end
 
 defprotocol Binstructor.PacketProto do
   def encodeimpl(struct)
@@ -77,7 +14,7 @@ defmodule Binstructor.Packet do
   defmacro defpacket(do: block) do
     members = build_members(block)
 
-    quote do
+    body = quote do
       unquote(build_struct(members))
       unquote(build_decode(members))
       unquote(build_encode(members))
@@ -86,6 +23,10 @@ defmodule Binstructor.Packet do
       # after the module is defined 
       Binstructor.Packet.build_proto_impl(__MODULE__)
     end
+
+    IO.puts(Macro.to_string(body))
+
+    body
 
   end
 
@@ -109,7 +50,7 @@ defmodule Binstructor.Packet do
     {result, _} = Code.eval_quoted(quote do
 
       mod = defmodule unquote(name) do
-        import Binstructor.DataTypes        
+        import Binstructor.FieldType       
 
         @packet_members []
 
@@ -138,18 +79,15 @@ defmodule Binstructor.Packet do
     quote do
       defstruct [unquote_splicing(
         Enum.filter_map(members,
-          fn {{:member, _name}, {_type, _default, _size, _opts}} -> true
-             _ -> end,
-          fn({{:member, name}, {_type, default, _size, _opts}}) ->
-            {name, Macro.escape(default)}
-        end)
+          fn (member) -> member.struct_definition != nil end,
+          fn (member) -> member.struct_definition end)
       )]
     end
   end 
 
   def build_decode(members) do
     quote do
-      def decode(unquote(build_binary_pattern(members))) do
+      def decode(unquote(build_binary_decode_pattern(members))) do
         unquote(build_struct_pattern(members))
       end
     end
@@ -158,14 +96,24 @@ defmodule Binstructor.Packet do
   def build_encode(members) do
     quote do
       def encode(var = unquote(build_struct_pattern(members))) do
-        unquote(build_binary_pattern(members))
+        unquote(build_binary_encode_pattern(members))
       end
     end
   end
 
-  def build_binary_pattern(members) do
+  def build_binary_encode_pattern(members) do
     quote do
-      << unquote_splicing(Enum.map(members, &build_single_binary_pattern/1)) >>
+      << unquote_splicing(Enum.filter_map(members, 
+          fn(member) -> member.bin_encode_pattern != nil end,
+          fn(member) -> member.bin_encode_pattern end)) >>
+    end
+  end
+
+  def build_binary_decode_pattern(members) do
+    quote do
+      << unquote_splicing(Enum.filter_map(members, 
+          fn(member) -> member.bin_decode_pattern != nil end,
+          fn(member) -> member.bin_decode_pattern end)) >>
     end
   end
 
@@ -174,32 +122,9 @@ defmodule Binstructor.Packet do
     quote do
       %__MODULE__{
         unquote_splicing(Enum.filter_map(members,
-          fn {{:member, _name}, {_type, _default, _size, _opts}} -> true
-             _ -> false end,
-          fn {{:member, name}, _} ->
-            quote do
-              {unquote(name), unquote(Macro.var(name, __MODULE__))}
-            end
-        end))
-      }
-    end
-  end
-
-  def build_single_binary_pattern({:constant, value}) do
-    quote do
-      unquote(Macro.escape(value))
-    end
-  end
-
-  def build_single_binary_pattern({{:member, name}, {type, _default, :undefined, _options}}) do
-    quote do
-      unquote(Macro.var(name, __MODULE__)) :: unquote(Macro.var(type,__MODULE__))
-    end
-  end
-
-  def build_single_binary_pattern({{:member, name}, {type, _default, size, _options}}) do
-    quote do
-      unquote(Macro.var(name, __MODULE__)) :: unquote(Macro.var(type,__MODULE__))-size(unquote(size))
+          fn(member) -> member.struct_pattern != nil end,
+          fn(member) -> member.struct_pattern end))
+       }
     end
   end
 
