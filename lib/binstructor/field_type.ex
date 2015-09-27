@@ -117,6 +117,61 @@ defmodule Binstructor.FieldType do
     end
   end
 
+  defp suffix_atom(name, suffix) do
+    String.to_atom(Atom.to_string(name) <> suffix)
+  end
+
+
+  def ip_struct_pattern(name) do
+    a_name = suffix_atom(name, "_ip_a")
+    b_name = suffix_atom(name, "_ip_b")
+    c_name = suffix_atom(name, "_ip_c")
+    d_name = suffix_atom(name, "_ip_d")
+
+    quote do
+      {unquote(name), 
+        {unquote(Macro.var(a_name, __MODULE__)),
+         unquote(Macro.var(b_name, __MODULE__)),
+         unquote(Macro.var(c_name, __MODULE__)),
+         unquote(Macro.var(d_name, __MODULE__))}}
+    end
+  end
+
+  def ip_bin_pattern(name, options) do
+    a_name = Macro.var(suffix_atom(name, "_ip_a"), __MODULE__)
+    b_name = Macro.var(suffix_atom(name, "_ip_b"), __MODULE__)
+    c_name = Macro.var(suffix_atom(name, "_ip_c"), __MODULE__)
+    d_name = Macro.var(suffix_atom(name, "_ip_d"), __MODULE__)
+
+    little_endian = Enum.member?(options, :little)
+
+    if little_endian do
+      quote do
+        <<unquote(d_name), unquote(c_name), unquote(b_name), unquote(a_name)>>
+      end
+    else
+      quote do
+        <<unquote(a_name), unquote(b_name), unquote(c_name), unquote(d_name)>>
+      end
+    end
+
+  end
+
+
+  defmacro ip_addr(name, default, options \\ []) do
+    quote do
+      record = %Binstructor.FieldType{
+        struct_definition:  standard_struct_def(unquote(name), unquote(default)),
+        struct_pattern: ip_struct_pattern(unquote(name)),
+        bin_encode_pattern: ip_bin_pattern(unquote(name), unquote(options)),
+        bin_decode_pattern: ip_bin_pattern(unquote(name), unquote(options))
+      }
+
+      @packet_members [record | @packet_members]
+    end
+    
+  end
+
 end
 
 
