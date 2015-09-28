@@ -1,5 +1,5 @@
 defmodule Binstructor.FieldType do
-  defstruct struct_definition: nil, struct_pattern: nil, bin_encode_pattern: nil, bin_decode_pattern: nil
+  defstruct struct_definition: nil, struct_build_pattern: nil, struct_match_pattern: nil, bin_build_pattern: nil, bin_match_pattern: nil
 
 
   defp standard_type(type, name, default, size, options) do
@@ -11,9 +11,10 @@ defmodule Binstructor.FieldType do
 
       record = %Binstructor.FieldType{
         struct_definition: standard_struct_def(unquote(name), unquote(default)),
-        struct_pattern: standard_struct_pattern(unquote(name)),
-        bin_encode_pattern: bin_pattern,
-        bin_decode_pattern: bin_pattern
+        struct_build_pattern: standard_struct_pattern(unquote(name)),
+        struct_match_pattern: standard_struct_pattern(unquote(name)),
+        bin_build_pattern: bin_pattern,
+        bin_match_pattern: bin_pattern
       }
 
       @packet_members [record | @packet_members]
@@ -88,7 +89,7 @@ defmodule Binstructor.FieldType do
 
   defmacro constant(value) do
 
-    record = %Binstructor.FieldType{bin_encode_pattern: value, bin_decode_pattern: value}
+    record = %Binstructor.FieldType{bin_build_pattern: value, bin_match_pattern: value}
 
     quote do
       @packet_members [unquote(Macro.escape(record)) | @packet_members]
@@ -96,13 +97,13 @@ defmodule Binstructor.FieldType do
   end
 
 
-  def padding_decode(val) when is_binary(val) do
+  def padding_match(val) when is_binary(val) do
     quote do
       _ :: binary-size(unquote(byte_size(val)))
     end
   end
  
-  def padding_decode(val) when is_bitstring(val) do
+  def padding_match(val) when is_bitstring(val) do
     quote do
       _ :: bitstring-size(unquote(bit_size(val)))
     end
@@ -111,7 +112,7 @@ defmodule Binstructor.FieldType do
   defmacro padding(value) do
     quote do
 
-    record = %Binstructor.FieldType{bin_encode_pattern: unquote(Macro.escape(value)), bin_decode_pattern: padding_decode(unquote(value))}
+    record = %Binstructor.FieldType{bin_build_pattern: unquote(Macro.escape(value)), bin_match_pattern: padding_match(unquote(value))}
 
     @packet_members [record | @packet_members]
     end
@@ -162,15 +163,81 @@ defmodule Binstructor.FieldType do
     quote do
       record = %Binstructor.FieldType{
         struct_definition:  standard_struct_def(unquote(name), unquote(default)),
-        struct_pattern: ip_struct_pattern(unquote(name)),
-        bin_encode_pattern: ip_bin_pattern(unquote(name), unquote(options)),
-        bin_decode_pattern: ip_bin_pattern(unquote(name), unquote(options))
+        struct_build_pattern: ip_struct_pattern(unquote(name)),
+        struct_match_pattern: ip_struct_pattern(unquote(name)),
+        bin_build_pattern: ip_bin_pattern(unquote(name), unquote(options)),
+        bin_match_pattern: ip_bin_pattern(unquote(name), unquote(options))
       }
 
       @packet_members [record | @packet_members]
     end
     
   end
+
+  defmacro lookup(name, lookup_vals, default, type, size, options \\ []) do
+    quote do
+      bin_match_pattern = standard_bin_pattern(unquote(name), unquote(type), unquote(size), unquote(options))
+      bin_build_pattern = lookup_bin_pattern(unquote(name), unquote(type), unquote(size), unquote(options), unquote(lookup_vals))
+
+      record = %Binstructor.FieldType{
+        struct_definition: standard_struct_def(unquote(name), unquote(default)),
+        struct_build_pattern: lookup_struct_pattern(unquote(name), unquote(lookup_vals)),
+        struct_match_pattern: standard_struct_pattern(unquote(name)),
+        bin_match_pattern: bin_match_pattern,
+        bin_build_pattern: bin_build_pattern
+      }
+
+      @packet_members [record | @packet_members]
+    end
+  end
+
+  def lookup_bin_pattern(name, type, size, options, lookup_vals) do
+    option_vars = Enum.map([type], fn(opt) -> Macro.var(opt, __MODULE__) end)
+
+    pattern_options = option_vars ++ case size do
+      :undefined -> []
+      _ -> [quote do size(unquote(size)) end]
+    end
+
+    case_block = quote do
+      case unquote(Macro.var(name, __MODULE__)) do
+        # Flat_map is required to pull generated values up to the level expected by case
+        unquote(Enum.flat_map(lookup_vals, fn({raw, val}) ->
+          quote do
+            unquote(Macro.escape(val)) -> unquote(Macro.escape(raw))
+          end
+        end))
+      end
+    end
+
+
+
+    quote do
+      unquote(case_block) :: unquote(Enum.reduce(pattern_options, fn(rhs, lhs) ->
+        quote do
+          unquote(lhs) - unquote(rhs)
+        end
+      end))
+    end
+  end
+
+  def lookup_struct_pattern(name, lookup_vals) do
+
+    quote do
+      {unquote(name),
+        case unquote(Macro.var(name, __MODULE__)) do(
+          # Flat_map is required to pull generated values up to the level expected by case
+          unquote(Enum.flat_map(lookup_vals, fn({raw, val}) ->
+            quote do
+              unquote(Macro.escape(raw)) -> unquote(Macro.escape(val))
+            end
+          end)))
+        end
+      }
+    end
+
+  end
+
 
 end
 

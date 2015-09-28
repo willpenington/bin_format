@@ -50,12 +50,12 @@ defmodule Binstructor.Packet do
 
   """
   defmacro defpacket(do: block) do
-    members = build_members(block)
+    members = define_fields(block)
 
     body = quote do
-      unquote(build_struct(members))
-      unquote(build_decode(members))
-      unquote(build_encode(members))
+      unquote(define_struct(members))
+      unquote(define_decode(members))
+      unquote(define_encode(members))
      
       # Has to be in the quote block to make sure it gets executed
       # after the module is defined 
@@ -98,7 +98,7 @@ defmodule Binstructor.Packet do
     end)
   end
 
-  defp build_members(block) do
+  defp define_fields(block) do
     name = String.to_atom("Binstructor.TempPacket" <> inspect(make_ref))
 
     {result, _} = Code.eval_quoted(quote do
@@ -129,7 +129,7 @@ defmodule Binstructor.Packet do
     result
   end
 
-  defp build_struct(members) do
+  defp define_struct(members) do
     quote do
       defstruct [unquote_splicing(
         Enum.filter_map(members,
@@ -139,45 +139,56 @@ defmodule Binstructor.Packet do
     end
   end 
 
-  defp build_decode(members) do
+  defp define_decode(members) do
     quote do
-      def decode(unquote(build_binary_decode_pattern(members))) do
-        unquote(build_struct_pattern(members))
+      def decode(unquote(binary_match_pattern(members))) do
+        unquote(struct_build_pattern(members))
       end
     end
   end
 
-  defp build_encode(members) do
+  defp define_encode(members) do
     quote do
-      def encode(var = unquote(build_struct_pattern(members))) do
-        unquote(build_binary_encode_pattern(members))
+      def encode(var = unquote(struct_match_pattern(members))) do
+        unquote(binary_build_pattern(members))
       end
     end
   end
 
-  defp build_binary_encode_pattern(members) do
+  defp binary_build_pattern(members) do
     quote do
       << unquote_splicing(Enum.filter_map(members, 
-          fn(member) -> member.bin_encode_pattern != nil end,
-          fn(member) -> member.bin_encode_pattern end)) >>
+          fn(member) -> member.bin_build_pattern != nil end,
+          fn(member) -> member.bin_build_pattern end)) >>
     end
   end
 
-  defp build_binary_decode_pattern(members) do
+  defp binary_match_pattern(members) do
     quote do
       << unquote_splicing(Enum.filter_map(members, 
-          fn(member) -> member.bin_decode_pattern != nil end,
-          fn(member) -> member.bin_decode_pattern end)) >>
+          fn(member) -> member.bin_match_pattern != nil end,
+          fn(member) -> member.bin_match_pattern end)) >>
     end
   end
 
-  defp build_struct_pattern(members) do
+  defp struct_match_pattern(members) do
 
     quote do
       %__MODULE__{
         unquote_splicing(Enum.filter_map(members,
-          fn(member) -> member.struct_pattern != nil end,
-          fn(member) -> member.struct_pattern end))
+          fn(member) -> member.struct_match_pattern != nil end,
+          fn(member) -> member.struct_match_pattern end))
+       }
+    end
+  end
+
+  defp struct_build_pattern(members) do
+
+    quote do
+      %__MODULE__{
+        unquote_splicing(Enum.filter_map(members,
+          fn(member) -> member.struct_build_pattern != nil end,
+          fn(member) -> member.struct_build_pattern end))
        }
     end
   end
