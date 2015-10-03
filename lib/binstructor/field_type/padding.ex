@@ -1,21 +1,24 @@
 defmodule Binstructor.FieldType.Padding do
   defstruct value: nil
 
-   def binary_match(%__MODULE__{value: val}) when is_binary(val) do
-     quote do
-       _ :: binary-size(unquote(byte_size(val)))
-     end
-   end
-
-   def binary_match(%__MODULE__{value: val}) when is_bitstring(val) do
-     quote do
-       _ :: bitstring-size(unquote(bit_size(val)))
-     end
-   end
 
 end
 
 defimpl Binstructor.Field, for: Binstructor.FieldType.Padding do
+  alias Binstructor.FieldType.Padding, as: Padding
+
+  defp binary_match(%Padding{value: val}) when is_binary(val) do
+    quote do
+      _ :: binary-size(unquote(byte_size(val)))
+    end
+  end
+
+  defp binary_match(%Padding{value: val}) when is_bitstring(val) do
+    quote do
+      _ :: bitstring-size(unquote(bit_size(val)))
+    end
+  end
+
   def struct_definition(_field, _module) do
     :undefined
   end
@@ -33,6 +36,6 @@ defimpl Binstructor.Field, for: Binstructor.FieldType.Padding do
   end
 
   def bin_match_pattern(field, _module, _prefix) do
-    {:ok, Binstructor.FieldType.Padding.binary_match(field)}
+    {:ok, binary_match(field)}
   end
 end

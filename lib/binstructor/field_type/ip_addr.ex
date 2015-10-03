@@ -1,7 +1,12 @@
 defmodule Binstructor.FieldType.IpAddr do
   defstruct name: nil, default: nil, options: []
 
-  def struct_pattern(%__MODULE__{name: name}, module, prefix) do
+end
+
+defimpl Binstructor.Field, for: Binstructor.FieldType.IpAddr do
+  alias Binstructor.FieldType.IpAddr, as: IpAddr
+
+  defp struct_pattern(%IpAddr{name: name}, module, prefix) do
     a_name = full_name(name, "_ip_a", prefix)
     b_name = full_name(name, "_ip_b", prefix)
     c_name = full_name(name, "_ip_c", prefix)
@@ -18,7 +23,7 @@ defmodule Binstructor.FieldType.IpAddr do
     {:ok, pattern}
   end
 
-  def bin_pattern(%__MODULE__{name: name, options: options}, module, prefix) do
+  defp bin_pattern(%IpAddr{name: name, options: options}, module, prefix) do
     a_name = Macro.var(full_name(name, "_ip_a", prefix), module)
     b_name = Macro.var(full_name(name, "_ip_b", prefix), module)
     c_name = Macro.var(full_name(name, "_ip_c", prefix), module)
@@ -42,26 +47,23 @@ defmodule Binstructor.FieldType.IpAddr do
   defp full_name(name, arg, prefix) do
     String.to_atom(prefix <> arg <> Atom.to_string(name))
   end
-end
-
-defimpl Binstructor.Field, for: Binstructor.FieldType.IpAddr do
-  def struct_definition(%Binstructor.FieldType.IpAddr{name: name, default: default}, _module) do
+  def struct_definition(%IpAddr{name: name, default: default}, _module) do
     Binstructor.FieldType.Util.standard_struct_def(name, default)
   end
 
   def struct_match_pattern(fields, module, prefix) do
-    Binstructor.FieldType.IpAddr.struct_pattern(fields, module, prefix)
+    struct_pattern(fields, module, prefix)
   end
 
   def struct_build_pattern(fields, module, prefix) do
-    Binstructor.FieldType.IpAddr.struct_pattern(fields, module, prefix)
+    struct_pattern(fields, module, prefix)
   end
 
   def bin_match_pattern(fields, module, prefix) do
-    Binstructor.FieldType.IpAddr.bin_pattern(fields, module, prefix)
+    bin_pattern(fields, module, prefix)
   end
 
   def bin_build_pattern(fields, module, prefix) do
-    Binstructor.FieldType.IpAddr.bin_pattern(fields, module, prefix)
+    bin_pattern(fields, module, prefix)
   end
 end

@@ -1,11 +1,16 @@
 defmodule Binstructor.FieldType.Lookup do
   defstruct name: nil, lookup_vals: nil, default: nil, type: nil, size: nil, options: nil
 
-  def struct_definition(%__MODULE__{name: name, default: default}, _module) do
+end
+
+defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
+  alias Binstructor.FieldType.Lookup, as: Lookup
+
+  def struct_definition(%Lookup{name: name, default: default}, _module) do
     Binstructor.FieldType.Util.standard_struct_def(name, default)
   end
 
-  def struct_build_pattern(%__MODULE__{name: name, lookup_vals: lookup_vals}, module, prefix) do
+  def struct_build_pattern(%Lookup{name: name, lookup_vals: lookup_vals}, module, prefix) do
     full_name = String.to_atom(prefix <> Atom.to_string(name))
     var_name = Macro.var(full_name, module)
 
@@ -25,11 +30,11 @@ defmodule Binstructor.FieldType.Lookup do
     {:ok, pattern}
   end
 
-  def struct_match_pattern(%__MODULE__{name: name}, module, prefix) do
+  def struct_match_pattern(%Lookup{name: name}, module, prefix) do
     Binstructor.FieldType.Util.standard_struct_pattern(name, module, prefix)
   end
 
-  def bin_build_pattern(%__MODULE__{name: name, type: type, size: size, options: options, lookup_vals: lookup_vals}, module, prefix) do
+  def bin_build_pattern(%Lookup{name: name, type: type, size: size, options: options, lookup_vals: lookup_vals}, module, prefix) do
 
     option_vars = Enum.map([type], fn(opt) -> Macro.var(opt, __MODULE__) end)
 
@@ -63,29 +68,7 @@ defmodule Binstructor.FieldType.Lookup do
     {:ok, pattern}
   end
 
-  def bin_match_pattern(%__MODULE__{name: name, type: type, size: size, options: options}, module, prefix) do
+  def bin_match_pattern(%Lookup{name: name, type: type, size: size, options: options}, module, prefix) do
     Binstructor.FieldType.Util.standard_bin_pattern(name, type, size, options, module, prefix)
-  end
-end
-
-defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
-  def struct_definition(field, module) do
-    Binstructor.FieldType.Lookup.struct_definition(field, module)
-  end
-
-  def struct_build_pattern(field, module, prefix) do
-    Binstructor.FieldType.Lookup.struct_build_pattern(field, module, prefix)
-  end
-
-  def struct_match_pattern(field, module, prefix) do
-    Binstructor.FieldType.Lookup.struct_match_pattern(field, module, prefix)
-  end
-
-  def bin_build_pattern(field, module, prefix) do
-    Binstructor.FieldType.Lookup.bin_build_pattern(field, module, prefix)
-  end
-
-  def bin_match_pattern(field, module, prefix) do
-    Binstructor.FieldType.Lookup.bin_match_pattern(field, module, prefix)
   end
 end
