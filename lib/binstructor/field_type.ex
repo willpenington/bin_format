@@ -2,7 +2,6 @@ defmodule Binstructor.FieldType do
   defstruct struct_definition: nil, struct_build_pattern: nil, struct_match_pattern: nil, bin_build_pattern: nil, bin_match_pattern: nil
 
   defmacro integer(name, default, size, options \\ []) do
-    IO.inspect({:integer, name})
     standard_type(:integer, name, default, size, options)
   end
 

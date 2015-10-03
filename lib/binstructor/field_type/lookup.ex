@@ -9,8 +9,6 @@ defmodule Binstructor.FieldType.Lookup do
     full_name = String.to_atom(prefix <> Atom.to_string(name))
     var_name = Macro.var(full_name, module)
 
-    IO.inspect("building lookup struct build pattern")
-
     pattern = quote do
       {unquote(name),
         case unquote(var_name) do(

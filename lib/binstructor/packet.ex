@@ -62,8 +62,6 @@ defmodule Binstructor.Packet do
       Binstructor.Packet.build_proto_impl(__MODULE__)
     end
 
-    IO.puts(Macro.to_string(body))
-
     body
 
   end
