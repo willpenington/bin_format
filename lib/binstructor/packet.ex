@@ -126,7 +126,7 @@ defmodule Binstructor.Packet do
       members
     end)
 
-    result
+    Enum.map(result, &Binstructor.FieldType.build_record/1)
   end
 
   defp define_struct(members) do
