@@ -41,6 +41,7 @@ defmodule Binstructor.FieldType do
   defmacro constant(value) do
     quote do
       record = {:constant, unquote(value)}
+      record = %Binstructor.FieldType.Constant{value: unquote(value)}
       @packet_members [record | @packet_members]
     end
   end
@@ -48,6 +49,7 @@ defmodule Binstructor.FieldType do
   defmacro padding(value) do
     quote do
       record = {:padding, unquote(value)}
+      record = %Binstructor.FieldType.Padding{value: unquote(value)}
       @packet_members [record | @packet_members]
     end
   end
@@ -55,6 +57,8 @@ defmodule Binstructor.FieldType do
   defmacro ip_addr(name, default, options \\ []) do
     quote do
       record = {:ip_addr, unquote(name), unquote(default), unquote(options)}
+      record = %Binstructor.FieldType.IpAddr{name: unquote(name), default: unquote(default), options: unquote(options)}
+
       @packet_members [record | @packet_members]
     end
   end
@@ -63,6 +67,8 @@ defmodule Binstructor.FieldType do
     quote do
       record = {:lookup, unquote(name), unquote(lookup_vals), unquote(default), 
                  unquote(type), unquote(size), unquote(options)}
+      record = %Binstructor.FieldType.Lookup{name: unquote(name), lookup_vals: unquote(lookup_vals), default: unquote(default), type: unquote(type), size: unquote(size), options: unquote(options)}
+
       @packet_members [record | @packet_members]
     end
   end
@@ -71,8 +77,14 @@ defmodule Binstructor.FieldType do
     quote do
       record = {:standard_type, unquote(type), unquote(name), unquote(default), 
                   unquote(size), unquote(options)}
+      record = %Binstructor.FieldType.BuiltIn{type: unquote(type), name: unquote(name), default: unquote(default), size: unquote(size), options: unquote(options)}
+
       @packet_members [record | @packet_members]
     end
+  end
+
+  def build_record(field) do
+    field
   end
 
   @doc """
