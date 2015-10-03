@@ -17,14 +17,6 @@ defmodule PaddingTest do
     %PaddingPacket{a: 21, b: 22}
   end
 
-  defp padding_val do
-    <<1,2,3,4 :: integer-size(6)>>
-  end
-
-  defp generated_binary do
-    <<21, padding_val, 22>>
-  end
-
   @generated_binary <<21, 1, 2, 3, 4 :: size(6), 22>>
   @sample_binary <<21, 31, 32, 33, 34 :: size(6), 22>>
 

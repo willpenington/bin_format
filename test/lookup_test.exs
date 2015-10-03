@@ -5,13 +5,6 @@ defmodule LookupTest do
     use Binstructor.Packet
 
     defpacket do
-      defp constants do
-        [{1, :foo},
-         {2, :bar},
-         {3, :baz},
-         {4, :bing},
-         {5, :boom}]
-      end
 
 
       lookup :a, [{1, :foo}, {2, :bar}, {3, :baz}, {4, :bing}, {5, :boom}], :foo, :integer, 8

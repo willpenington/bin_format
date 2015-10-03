@@ -7,7 +7,7 @@ defmodule DataTypesTest do
 
     defpacket do
       integer :a, 0, 8
-      float :b, 0, 4
+      float :b, 0, 32
       bits :c, <<1>>, 8
       bitstring :d, <<2>>, 8
       binary :e, <<3>>, 8
