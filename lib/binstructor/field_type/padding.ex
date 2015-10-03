@@ -1,6 +1,12 @@
 defmodule Binstructor.FieldType.Padding do
   defstruct value: nil
 
+  defmacro padding(value) do
+    field = quote do
+      %Binstructor.FieldType.Padding{value: unquote(value)}
+    end
+    Binstructor.FieldType.Util.add_field(field)
+  end
 
 end
 

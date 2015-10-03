@@ -1,5 +1,13 @@
 defmodule Binstructor.FieldType.Constant do
   defstruct value: nil
+
+  defmacro constant(value) do
+    field = quote do
+      field = %Binstructor.FieldType.Constant{value: unquote(value)}
+    end
+
+    Binstructor.FieldType.Util.add_field(field)
+  end
 end
 
 defimpl Binstructor.Field, for: Binstructor.FieldType.Constant do

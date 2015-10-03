@@ -1,6 +1,15 @@
 defmodule Binstructor.FieldType.Lookup do
   defstruct name: nil, lookup_vals: nil, default: nil, type: nil, size: nil, options: nil
 
+  defmacro lookup(name, lookup_vals, default, type, size, options \\ []) do
+    field = quote do
+      %Binstructor.FieldType.Lookup{name: unquote(name), 
+        lookup_vals: unquote(lookup_vals), default: unquote(default), 
+        type: unquote(type), size: unquote(size), options: unquote(options)}
+    end
+    Binstructor.FieldType.Util.add_field(field)
+  end
+
 end
 
 defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
@@ -36,7 +45,7 @@ defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
 
   def bin_build_pattern(%Lookup{name: name, type: type, size: size, options: options, lookup_vals: lookup_vals}, module, prefix) do
 
-    option_vars = Enum.map([type], fn(opt) -> Macro.var(opt, __MODULE__) end)
+    option_vars = Enum.map([type | options], fn(opt) -> Macro.var(opt, __MODULE__) end)
 
     pattern_options = option_vars ++ case size do
       :undefined -> []

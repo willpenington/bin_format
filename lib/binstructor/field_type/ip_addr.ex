@@ -1,6 +1,14 @@
 defmodule Binstructor.FieldType.IpAddr do
   defstruct name: nil, default: nil, options: []
 
+  defmacro ip_addr(name, default, options \\ []) do
+    field = quote do
+      %Binstructor.FieldType.IpAddr{name: unquote(name), 
+        default: unquote(default), options: unquote(options)}
+    end
+    Binstructor.FieldType.Util.add_field(field)
+  end
+
 end
 
 defimpl Binstructor.Field, for: Binstructor.FieldType.IpAddr do

@@ -102,7 +102,11 @@ defmodule Binstructor.Packet do
     {result, _} = Code.eval_quoted(quote do
 
       mod = defmodule unquote(name) do
-        import Binstructor.FieldType       
+        import Binstructor.FieldType.BuiltIn
+        import Binstructor.FieldType.Constant
+        import Binstructor.FieldType.IpAddr
+        import Binstructor.FieldType.Lookup
+        import Binstructor.FieldType.Padding
 
         @packet_members []
 
@@ -124,7 +128,7 @@ defmodule Binstructor.Packet do
       members
     end)
 
-    Enum.map(result, &Binstructor.FieldType.build_record/1)
+    result
   end
 
   defp define_struct(members, module) do

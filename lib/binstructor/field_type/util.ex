@@ -77,4 +77,17 @@ defmodule Binstructor.FieldType.Util do
 
     {:ok, bin_pattern}
   end
+
+  @doc """
+  Add an implementation of field to the packet structure
+
+  Adds an field to the end of the current packet structure. The field should be
+  an implementation of the Binstructor.Field protocol.
+  """
+  def add_field(field) do
+    quote do
+      # Actually adding to the head but this will be reversed
+      @packet_members [unquote(field) | @packet_members]
+    end
+  end
 end
