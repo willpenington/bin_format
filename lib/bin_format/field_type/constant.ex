@@ -1,6 +1,21 @@
 defmodule BinFormat.FieldType.Constant do
   defstruct value: nil
 
+  @moduledoc """
+  Constant field type for defformat
+  """
+
+  @doc """
+  Add a constant field to the format structure in defformat.
+
+  Adds a field to the format structure that requires a specific value in the
+  binary for the decode function to be sucessful. If the value found does not
+  match what is expected the function will fail with a BadMatch error.
+  
+  The value supplied will always be emmited when encoding the value.
+  
+  No field will be defined in the struct for the format.
+  """
   defmacro constant(value) do
     field = quote do
       field = %BinFormat.FieldType.Constant{value: unquote(value)}

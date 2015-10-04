@@ -1,6 +1,21 @@
 defmodule BinFormat.FieldType.IpAddr do
   defstruct name: nil, default: nil, options: []
 
+  @moduledoc """
+  :inet style IP address field type for defformat. 
+  """
+
+  @doc """
+  Add an IP address field to the format structure in defformat.
+
+  This field type decodes IP addresses represented as 32 bit integers in
+  binaries directly into the tuple format used by the networking modules in the
+  Erlang standard library. For example, it will transform the binary value 
+  `<< 192, 168, 1, 1 >>` into `{192, 168, 1, 1}` and vice versa.
+
+  By default the binary value will be treated as big endian. To use a little
+  endian encoding add the atom `:little` to the list of options.
+  """
   defmacro ip_addr(name, default, options \\ []) do
     field = quote do
       %BinFormat.FieldType.IpAddr{name: unquote(name), 

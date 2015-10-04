@@ -1,6 +1,21 @@
 defmodule BinFormat.FieldType.Padding do
   defstruct value: nil
 
+  @moduledoc """
+  Padding field type for defformat
+  """
+
+  @doc """
+  Add a padding field to the format structure in defformat.
+
+  Padding fields can be used to take up space in the binary structure between
+  other fields. They are added to the pattern used to decode binaries but their
+  value is not stored. The value supplied is used to fill the space when
+  encoding a struct into a binary. The number of bits ignored in decoding is
+  calculated from the length of the value used for encoding.
+
+  No field is defined in the struct for the format by padding.
+  """
   defmacro padding(value) do
     field = quote do
       %BinFormat.FieldType.Padding{value: unquote(value)}

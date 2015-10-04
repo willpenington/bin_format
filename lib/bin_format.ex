@@ -7,23 +7,33 @@ defmodule BinFormat do
   end
 
   @doc """
-  Defines the structure of a packet.
+  Defines the structure of the format.
 
-  Fields of the packet are defined with calls to the macros in
-  BinFormat.FieldType (which is automatically imported). The field descriptor
-  macros should be called in the order the fields appear in the binary packet.
+  The format is defined by calling field type macros in the order that the
+  fields appear in the packet. The standard field types are defined in the
+  `BinFormat.FieldType.*` modules, which are imported automatically. These
+  macros generate a field list for the protocol which is used to build the
+  patterns in the encode and decode functions. The defformat call is replaced
+  by the boilerplate struct definition and encode and decode functions at
+  compile time and is equivalent to writing the code manually.
+
+  Any macro that returns `BinFormat.FieldType.Util.add_field` called with a
+  valid implementation of the `BinFormat.Field` protocol can be used as a
+  field type.
+
+  Metaprogrammming within the defformat block is supported but all macro calls
+  must happen in the conext of the block. See [README](extra-readme.html) for
+  details.
 
   ## Examples
-  A simple packet with a constant header and three integer fields would be
-  described as follows:
+  A simple format with a constant header and three integer fields can be
+  implemented as follows:
 
   ```
   defmodule Foo do
     use BinFormat
 
-    @c_default <<1,2,3,4>>
-
-    defpacket do
+    defformat do
       constant << "Foo" >>
       integer :a, 0, 8
       integer :b, 10, 8
@@ -31,10 +41,12 @@ defmodule BinFormat do
     end
   end
   ```
-  This is equivalent to writing the following code manually:
+
+  This is expands to the following code when the module is compiled:
+
    ```
    defmodule Foo do
-     defstruct a: 0, b: 10, c: <<1,2,3,4>>, d:3
+     defstruct a: 0, b: 10, c: 3
 
      def decode(<<"Foo", a :: integer-size(8), b :: integer-size(8), c integer-size(8)>>) do
        %Foo{a: a, b: b, c: c}
@@ -45,9 +57,6 @@ defmodule BinFormat do
      end
   end
   ```
-
-
-
   """
   defmacro defformat(do: block) do
     members = define_fields(block)
@@ -70,13 +79,11 @@ defmodule BinFormat do
   Encodes any struct defined through BinFormat as a binary.
 
   If the struct is defined through BinFormat using the defpacket module
-  then this function will automatically call the `encode\1` function from the 
-  module where the packet structure is defined.
+  then this function is equivalent to calling encode(struct) on the module
+  directly.
 
-  If the struct is not defined using BinFormat the call will fail even if
-  the module contains an `encode\1` function as the function may have
-  undesirable side effects, however implementing the `BinFormat.Format`
-  protocol for a type will cause it to work with this function.
+  This is a convenience function implemented through the BinFormat.Format
+  protocol.
   """
   def encode(struct) do
     BinFormat.Format.encode(struct)
@@ -85,6 +92,8 @@ defmodule BinFormat do
   @doc """
   Automatically define an implementation of the `BinFormat.Format`
   function for a Module.
+  
+  It is used internally and will be removed from the public API soon.
   """
   def build_proto_impl(module) do
     Code.eval_quoted(quote do

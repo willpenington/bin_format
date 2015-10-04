@@ -1,20 +1,50 @@
-Binstructor
+bin_format
 =========
 
-Binstructor makes it easy to deal with simple but large binary formats by
-generating the boilerplate Elixir code for you, including a Struct definition,
-encode and decode functions and helpers for pattern matching. Writing a binary
-pattern match for 37 different fields is tedious, so let Binstructor do it for
-you from a simple declaritive description that's easy to compare to the spec!
+bin_format generates the Elixir code for handling binary formats throuh
+structs. The code created by bin_format is the same as you would write by hand,
+but the fields and their order are kept in one place.
+
+The format description is done through the defformat macro, which uses a set of
+macros designed to make long specifications easy to transcribe and supports
+metaprogramming.
+
+## Supported Field Types
+The full documentation for supported field types can be found in the ExDoc
+files for the `BinFormat.FieldType.*` modules.
+
+### Built In
+Types supported in standard Elixir byte strings
+
+* `integer`
+* `binary` (and `bytes`)
+* `bitstring` (and `bits`)
+* `float`
+* `utf8`
+* `utf16`
+* `utf32`
+
+### Formatting
+* `constant` - Must be present for binary patterns to match
+* `padding` - Ignored on binary decode, set to a default on binary encode
+
+### Convenience
+* `ip_addr` - IP addresses in the :inet {a,b,c,d} format
+* `lookup` - Replace a decoded value with an Elixir term from a list
+
+### Custom
+Additional field types can be added by creating implentations
+of the `BinFormat.Field` protocol and wrapping the 
+`BinFormat.FieldType.Util.add_field` macro. See ADDING_TYPES.md for more
+details.
 
 # Usage
 
-To define a new packet structure, create a module and add the
-Binstructure.Packet module with `use Binstructor.Packet`. This will add the
-`defpacket` macro which is where you define your fields.
+To define a new format, create a module and add the BinFormat module with 
+`use BinFormat`. This will add the `defformat` macro which is where you define
+the fields and their order.
 
-Each field in the packet is defined by a function call. Basic data types are
-identified with the same name as in a binary pattern match.
+Each field in the packet is defined by a macro call.
 
 ## Example
 ```
@@ -35,14 +65,12 @@ becomes
 
 ```
 defmodule Foo do
-  use Binstructor.Packet
+  use BinFormat
 
-  @c_default <<1,2,3,4>>
-
-  defpacket do
+  defformat do
     integer :a, 0, 8
     integer :b, 10, 8
-    binary :c, @c_default, 3
+    binary :c, <<1,2,3,4>>, 3
     integer :d, 3, 8
   end
 end
@@ -56,37 +84,36 @@ structures from machine readable specifications.
 
 For Example:
 ```
-  defpacket do
-    integer :first, 0, 8
+defformat do
+  integer :first, 0, 8
 
-    names = [{:a1, {:a2, <<1,2,3>>}}, {:b1, {:b2, <<2,3,4>>}}, {:c1, {:c2, <<3,4,5>>}}]
+  names = [{:a1, {:a2, <<1,2,3>>}}, {:b1, {:b2, <<2,3,4>>}}, {:c1, {:c2, <<3,4,5>>}}]
 
-    Enum.map(names, fn({v1, {v2, default}}) ->
-      integer v1, 0, 8
-      binary v2, default, 3
-    end)
+  Enum.map(names, fn({v1, {v2, default}}) ->
+    integer v1, 0, 8
+    binary v2, default, 3
+  end)
 
-    integer :last, 0, 8
-  end
+  integer :last, 0, 8
+end
 ```
 
 is equivalent to
 
 ```
-    defpacket do
-      integer :first, 0, 8
+defformat do
+  integer :first, 0, 8
 
-      integer :a1, 0, 8
-      binary :a2, <<1,2,3>>, 3
+  integer :a1, 0, 8
+  binary :a2, <<1,2,3>>, 3
 
-      integer :b1, 0, 8
-      binary :b2, <<2,3,4>>, 3
+  integer :b1, 0, 8
+  binary :b2, <<2,3,4>>, 3
 
-      integer :c1, 0, 8
-      binary :c2, <<3,4,5>>, 3
+  integer :c1, 0, 8
+  binary :c2, <<3,4,5>>, 3
 
-      integer :last, 0, 8
-    end
-  end
+  integer :last, 0, 8
+end
 ```
 

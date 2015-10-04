@@ -1,6 +1,22 @@
 defmodule BinFormat.FieldType.Lookup do
   defstruct name: nil, lookup_vals: nil, default: nil, type: nil, size: nil, options: nil
 
+  @moduledoc """
+  Lookup field type for defformat.
+  """
+
+  @doc """
+  Add a Lookup field to the format structure in defformat.
+
+  A lookup field uses a list of values and labels to map a stanard value type
+  in the binary to an arbitrary Elixir value in the struct. The type is the
+  name of any macro in the BinFormat.FieldType.BuiltIn module as an atom and
+  the rest of the arguments are the same as they would be in that module.
+
+  If the value read from the binary does not have a label defined in
+  lookup_vals or a term in the struct does not have a matching raw value the
+  encode or decode function will fail.
+  """
   defmacro lookup(name, lookup_vals, default, type, size, options \\ []) do
     field = quote do
       %BinFormat.FieldType.Lookup{name: unquote(name), 
