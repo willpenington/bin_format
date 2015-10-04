@@ -6,7 +6,7 @@ defmodule BinFormat.Mixfile do
      version: "0.0.1",
      elixir: "~> 1.0",
      source_url: "https://github.com/willpenington/binstructor",
-     docs: [extras: ["README.md"]],
+     docs: [extras: ["README.md", "ADDING_TYPES.md"]],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      description: description,
