@@ -1,8 +1,8 @@
-defmodule Binstructor.Mixfile do
+defmodule BinFormat.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :binstructor,
+    [app: :bin_format,
      version: "0.0.1",
      elixir: "~> 1.0",
      source_url: "https://github.com/willpenington/binstructor",
@@ -45,7 +45,7 @@ defmodule Binstructor.Mixfile do
   defp package do
     [maintainers: ["Will Penington"],
      licenses: ["MIT"],
-     links: %{"GitHub" => "https://github.com/willpenington/binstructor"}]
+     links: %{"GitHub" => "https://github.com/willpenington/bin_format"}]
   end
 
 end
