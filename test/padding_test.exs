@@ -3,7 +3,7 @@ defmodule PaddingTest do
 
 
   defmodule PaddingPacket do
-    use Binstructor.Packet
+    use BinFormat
 
     defpacket do
       integer :a, 11, 8

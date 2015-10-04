@@ -1,22 +1,22 @@
-defmodule Binstructor.FieldType.Lookup do
+defmodule BinFormat.FieldType.Lookup do
   defstruct name: nil, lookup_vals: nil, default: nil, type: nil, size: nil, options: nil
 
   defmacro lookup(name, lookup_vals, default, type, size, options \\ []) do
     field = quote do
-      %Binstructor.FieldType.Lookup{name: unquote(name), 
+      %BinFormat.FieldType.Lookup{name: unquote(name), 
         lookup_vals: unquote(lookup_vals), default: unquote(default), 
         type: unquote(type), size: unquote(size), options: unquote(options)}
     end
-    Binstructor.FieldType.Util.add_field(field)
+    BinFormat.FieldType.Util.add_field(field)
   end
 
 end
 
-defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
-  alias Binstructor.FieldType.Lookup, as: Lookup
+defimpl BinFormat.Field, for: BinFormat.FieldType.Lookup do
+  alias BinFormat.FieldType.Lookup, as: Lookup
 
   def struct_definition(%Lookup{name: name, default: default}, _module) do
-    Binstructor.FieldType.Util.standard_struct_def(name, default)
+    BinFormat.FieldType.Util.standard_struct_def(name, default)
   end
 
   def struct_build_pattern(%Lookup{name: name, lookup_vals: lookup_vals}, module, prefix) do
@@ -40,7 +40,7 @@ defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
   end
 
   def struct_match_pattern(%Lookup{name: name}, module, prefix) do
-    Binstructor.FieldType.Util.standard_struct_pattern(name, module, prefix)
+    BinFormat.FieldType.Util.standard_struct_pattern(name, module, prefix)
   end
 
   def bin_build_pattern(%Lookup{name: name, type: type, size: size, options: options, lookup_vals: lookup_vals}, module, prefix) do
@@ -78,6 +78,6 @@ defimpl Binstructor.Field, for: Binstructor.FieldType.Lookup do
   end
 
   def bin_match_pattern(%Lookup{name: name, type: type, size: size, options: options}, module, prefix) do
-    Binstructor.FieldType.Util.standard_bin_pattern(name, type, size, options, module, prefix)
+    BinFormat.FieldType.Util.standard_bin_pattern(name, type, size, options, module, prefix)
   end
 end

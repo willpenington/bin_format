@@ -2,7 +2,7 @@ defmodule ConstantTests do
   use ExUnit.Case
  
   defmodule ConstantPacket do
-    use Binstructor.Packet
+    use BinFormat
 
     defpacket do
       constant <<1,2,3>>

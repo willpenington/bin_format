@@ -1,4 +1,4 @@
-defprotocol Binstructor.Field do
+defprotocol BinFormat.Field do
 
   @moduledoc """
   Converts information about the field into snippets of Elixir AST that can be

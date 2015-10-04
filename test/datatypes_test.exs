@@ -3,7 +3,7 @@ defmodule DataTypesTest do
 
 
   defmodule TypesPacket do
-    use Binstructor.Packet
+    use BinFormat
 
     defpacket do
       integer :a, 0, 8

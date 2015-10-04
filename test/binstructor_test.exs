@@ -1,9 +1,9 @@
-defmodule BinstructorTest do
+defmodule BinFormatTest do
   use ExUnit.Case
 
 
   defmodule TestPacket do
-    use Binstructor.Packet
+    use BinFormat
     
     defpacket do
       integer :a, 0, 8
@@ -47,7 +47,7 @@ defmodule BinstructorTest do
   end
 
   test "structs can be encoded without knowing the module" do
-    bin = Binstructor.Packet.encode(sample_struct)
+    bin = BinFormat.encode(sample_struct)
 
     assert bin == @sample_binary
   end
@@ -61,7 +61,7 @@ defmodule BinstructorTest do
 
   test "encoding a struct not defined with binstructor is not supported" do
     d = %Dummy{}
-    catch_error(Binstructor.Packet.encode(d))
+    catch_error(BinFormat.encode(d))
   end
   
 end

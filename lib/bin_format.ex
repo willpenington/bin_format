@@ -1,8 +1,8 @@
-defmodule Binstructor.Packet do
+defmodule BinFormat do
 
   defmacro __using__(_opts) do
     quote do
-      import Binstructor.Packet
+      import BinFormat
     end
   end
 
@@ -10,7 +10,7 @@ defmodule Binstructor.Packet do
   Defines the structure of a packet.
 
   Fields of the packet are defined with calls to the macros in
-  Binstructor.FieldType (which is automatically imported). The field descriptor
+  BinFormat.FieldType (which is automatically imported). The field descriptor
   macros should be called in the order the fields appear in the binary packet.
 
   ## Examples
@@ -19,7 +19,7 @@ defmodule Binstructor.Packet do
 
   ```
   defmodule Foo do
-    use Binstructor.Packet
+    use BinFormat
 
     @c_default <<1,2,3,4>>
 
@@ -59,7 +59,7 @@ defmodule Binstructor.Packet do
      
       # Has to be in the quote block to make sure it gets executed
       # after the module is defined 
-      Binstructor.Packet.build_proto_impl(__MODULE__)
+      BinFormat.build_proto_impl(__MODULE__)
     end
 
     body
@@ -67,28 +67,28 @@ defmodule Binstructor.Packet do
   end
 
   @doc """
-  Encodes any struct defined through Binstructor as a binary.
+  Encodes any struct defined through BinFormat as a binary.
 
-  If the struct is defined through Binstructor using the defpacket module
+  If the struct is defined through BinFormat using the defpacket module
   then this function will automatically call the `encode\1` function from the 
   module where the packet structure is defined.
 
-  If the struct is not defined using Binstructor the call will fail even if
+  If the struct is not defined using BinFormat the call will fail even if
   the module contains an `encode\1` function as the function may have
-  undesirable side effects, however implementing the `Binstructor.PacketProto`
+  undesirable side effects, however implementing the `BinFormat.PacketProto`
   protocol for a type will cause it to work with this function.
   """
   def encode(struct) do
-    Binstructor.PacketProto.encodeimpl(struct)
+    BinFormat.PacketProto.encodeimpl(struct)
   end
 
   @doc """
-  Automatically define an implementation of the `Binstructor.PacketProto`
+  Automatically define an implementation of the `BinFormat.PacketProto`
   function for a Module.
   """
   def build_proto_impl(module) do
     Code.eval_quoted(quote do
-      defimpl Binstructor.PacketProto, for: unquote(module) do
+      defimpl BinFormat.PacketProto, for: unquote(module) do
         def encodeimpl(spec) do
           apply(unquote(module), :encode, [spec])
         end
@@ -97,16 +97,16 @@ defmodule Binstructor.Packet do
   end
 
   defp define_fields(block) do
-    name = String.to_atom("Binstructor.TempPacket" <> inspect(make_ref))
+    name = String.to_atom("BinFormat.TempPacket" <> inspect(make_ref))
 
     {result, _} = Code.eval_quoted(quote do
 
       mod = defmodule unquote(name) do
-        import Binstructor.FieldType.BuiltIn
-        import Binstructor.FieldType.Constant
-        import Binstructor.FieldType.IpAddr
-        import Binstructor.FieldType.Lookup
-        import Binstructor.FieldType.Padding
+        import BinFormat.FieldType.BuiltIn
+        import BinFormat.FieldType.Constant
+        import BinFormat.FieldType.IpAddr
+        import BinFormat.FieldType.Lookup
+        import BinFormat.FieldType.Padding
 
         @packet_members []
 
@@ -133,7 +133,7 @@ defmodule Binstructor.Packet do
 
   defp define_struct(members, module) do
     defs = Enum.map(members, fn(member) -> 
-      Binstructor.Field.struct_definition(member, module)
+      BinFormat.Field.struct_definition(member, module)
     end)
       
     defs_filtered = Enum.filter_map(defs,
@@ -163,7 +163,7 @@ defmodule Binstructor.Packet do
 
   defp binary_build_pattern(members, module, prefix) do
     patterns = Enum.map(members, fn(member) -> 
-      Binstructor.Field.bin_build_pattern(member, module, prefix)
+      BinFormat.Field.bin_build_pattern(member, module, prefix)
     end)
       
     filtered_patterns = Enum.filter_map(patterns,
@@ -177,7 +177,7 @@ defmodule Binstructor.Packet do
 
   defp binary_match_pattern(members, module, prefix) do
     patterns = Enum.map(members, fn(member) -> 
-      Binstructor.Field.bin_match_pattern(member, module, prefix)
+      BinFormat.Field.bin_match_pattern(member, module, prefix)
     end)
     
     filtered_patterns = []
@@ -193,7 +193,7 @@ defmodule Binstructor.Packet do
 
   defp struct_match_pattern(members, module, prefix) do
     patterns = Enum.map(members, fn(member) -> 
-      Binstructor.Field.struct_match_pattern(member, module, prefix)
+      BinFormat.Field.struct_match_pattern(member, module, prefix)
     end)
       
     filtered_patterns = Enum.filter_map(patterns,
@@ -209,7 +209,7 @@ defmodule Binstructor.Packet do
 
   defp struct_build_pattern(members, module, prefix) do
     patterns = Enum.map(members, fn(member) -> 
-      Binstructor.Field.struct_build_pattern(member, module, prefix)
+      BinFormat.Field.struct_build_pattern(member, module, prefix)
     end)
       
     filtered_patterns = Enum.filter_map(patterns,

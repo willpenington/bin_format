@@ -1,17 +1,17 @@
-defmodule Binstructor.FieldType.Padding do
+defmodule BinFormat.FieldType.Padding do
   defstruct value: nil
 
   defmacro padding(value) do
     field = quote do
-      %Binstructor.FieldType.Padding{value: unquote(value)}
+      %BinFormat.FieldType.Padding{value: unquote(value)}
     end
-    Binstructor.FieldType.Util.add_field(field)
+    BinFormat.FieldType.Util.add_field(field)
   end
 
 end
 
-defimpl Binstructor.Field, for: Binstructor.FieldType.Padding do
-  alias Binstructor.FieldType.Padding, as: Padding
+defimpl BinFormat.Field, for: BinFormat.FieldType.Padding do
+  alias BinFormat.FieldType.Padding, as: Padding
 
   defp binary_match(%Padding{value: val}) when is_binary(val) do
     quote do
@@ -37,7 +37,7 @@ defimpl Binstructor.Field, for: Binstructor.FieldType.Padding do
     :undefined
   end
 
-  def bin_build_pattern(%Binstructor.FieldType.Padding{value: value}, _module, _prefix) do
+  def bin_build_pattern(%BinFormat.FieldType.Padding{value: value}, _module, _prefix) do
     {:ok, Macro.escape(value)}
   end
 

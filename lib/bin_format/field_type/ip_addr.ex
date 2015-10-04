@@ -1,18 +1,18 @@
-defmodule Binstructor.FieldType.IpAddr do
+defmodule BinFormat.FieldType.IpAddr do
   defstruct name: nil, default: nil, options: []
 
   defmacro ip_addr(name, default, options \\ []) do
     field = quote do
-      %Binstructor.FieldType.IpAddr{name: unquote(name), 
+      %BinFormat.FieldType.IpAddr{name: unquote(name), 
         default: unquote(default), options: unquote(options)}
     end
-    Binstructor.FieldType.Util.add_field(field)
+    BinFormat.FieldType.Util.add_field(field)
   end
 
 end
 
-defimpl Binstructor.Field, for: Binstructor.FieldType.IpAddr do
-  alias Binstructor.FieldType.IpAddr, as: IpAddr
+defimpl BinFormat.Field, for: BinFormat.FieldType.IpAddr do
+  alias BinFormat.FieldType.IpAddr, as: IpAddr
 
   defp struct_pattern(%IpAddr{name: name}, module, prefix) do
     a_name = full_name(name, "_ip_a", prefix)
@@ -56,7 +56,7 @@ defimpl Binstructor.Field, for: Binstructor.FieldType.IpAddr do
     String.to_atom(prefix <> arg <> Atom.to_string(name))
   end
   def struct_definition(%IpAddr{name: name, default: default}, _module) do
-    Binstructor.FieldType.Util.standard_struct_def(name, default)
+    BinFormat.FieldType.Util.standard_struct_def(name, default)
   end
 
   def struct_match_pattern(fields, module, prefix) do

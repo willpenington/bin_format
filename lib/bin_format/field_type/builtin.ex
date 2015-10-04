@@ -1,14 +1,14 @@
-defmodule Binstructor.FieldType.BuiltIn do
+defmodule BinFormat.FieldType.BuiltIn do
   defstruct type: nil, name: nil, default: nil, size: nil, options: []
 
   defp standard_type(type, name, default, size, options) do
     field = quote do
-      %Binstructor.FieldType.BuiltIn{type: unquote(type), name: unquote(name),
+      %BinFormat.FieldType.BuiltIn{type: unquote(type), name: unquote(name),
         default: unquote(default), size: unquote(size), 
         options: unquote(options)}
     end
 
-    Binstructor.FieldType.Util.add_field(field)
+    BinFormat.FieldType.Util.add_field(field)
   end
   
   defmacro integer(name, default, size, options \\ []) do
@@ -49,20 +49,20 @@ defmodule Binstructor.FieldType.BuiltIn do
 
 end
 
-defimpl Binstructor.Field, for: Binstructor.FieldType.BuiltIn do
+defimpl BinFormat.Field, for: BinFormat.FieldType.BuiltIn do
 
-  alias Binstructor.FieldType.BuiltIn, as: BuiltIn
+  alias BinFormat.FieldType.BuiltIn, as: BuiltIn
 
   defp struct_def(%BuiltIn{name: name, default: default}, _module) do
-    Binstructor.FieldType.Util.standard_struct_def(name, default)
+    BinFormat.FieldType.Util.standard_struct_def(name, default)
   end
 
   defp struct_pattern(%BuiltIn{name: name}, module, prefix) do
-    Binstructor.FieldType.Util.standard_struct_pattern(name, module, prefix)
+    BinFormat.FieldType.Util.standard_struct_pattern(name, module, prefix)
   end 
 
   defp bin_pattern(%BuiltIn{name: name, type: type, size: size, options: options}, module, prefix) do
-    Binstructor.FieldType.Util.standard_bin_pattern(name, type, size, 
+    BinFormat.FieldType.Util.standard_bin_pattern(name, type, size, 
                                                     options, module, prefix)
   end
 

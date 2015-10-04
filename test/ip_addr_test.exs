@@ -2,7 +2,7 @@ defmodule IpAddrTest do
   use ExUnit.Case
 
   defmodule IpAddrPacket do
-    use Binstructor.Packet
+    use BinFormat
 
     defpacket do
       ip_addr :a, {12, 13, 14, 15}

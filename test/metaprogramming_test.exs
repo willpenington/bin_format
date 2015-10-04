@@ -2,7 +2,7 @@ defmodule MetaprogrammingTest do
   use ExUnit.Case
 
   defmodule MetaPacket do
-    use Binstructor.Packet
+    use BinFormat
 
     defpacket do
       integer :first, 0, 8

@@ -1,7 +1,7 @@
-defmodule Binstructor.FieldType.Util do
+defmodule BinFormat.FieldType.Util do
   @moduledoc """
   Implementations of the AST generator functions for builtin types with the
-  Binstructor.FieldType.BuiltIn struct replaced by the relevant variables.
+  BinFormat.FieldType.BuiltIn struct replaced by the relevant variables.
 
   These functions are useful for other types and are provided to reduce
   duplication.
@@ -82,7 +82,7 @@ defmodule Binstructor.FieldType.Util do
   Add an implementation of field to the packet structure
 
   Adds an field to the end of the current packet structure. The field should be
-  an implementation of the Binstructor.Field protocol.
+  an implementation of the BinFormat.Field protocol.
   """
   def add_field(field) do
     quote do

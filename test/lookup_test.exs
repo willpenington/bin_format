@@ -2,7 +2,7 @@ defmodule LookupTest do
   use ExUnit.Case
 
   defmodule LookupPacket do
-    use Binstructor.Packet
+    use BinFormat
 
     defpacket do
 
