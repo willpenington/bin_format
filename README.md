@@ -9,6 +9,13 @@ The format description is done through the defformat macro, which uses a set of
 macros designed to make long specifications easy to transcribe and supports
 metaprogramming.
 
+## Getting Started
+You can add bin_format to your project as a dependency from hex. Just add
+`{:bin_format, "~> 0.0.1"}` to your mix file's deps section.
+
+The documentation can be found 
+[here](http://hexdocs.pm/bin_format/0.0.1/extra-api-reference.html).
+
 ## Supported Field Types
 The full documentation for supported field types can be found in the ExDoc
 files for the `BinFormat.FieldType.*` modules.
@@ -38,7 +45,7 @@ of the `BinFormat.Field` protocol and wrapping the
 `BinFormat.FieldType.Util.add_field` macro. See ADDING_TYPES.md for more
 details.
 
-# Usage
+## Usage
 
 To define a new format, create a module and add the BinFormat module with 
 `use BinFormat`. This will add the `defformat` macro which is where you define
