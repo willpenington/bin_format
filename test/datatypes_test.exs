@@ -5,7 +5,7 @@ defmodule DataTypesTest do
   defmodule TypesPacket do
     use BinFormat
 
-    defpacket do
+    defformat do
       integer :a, 0, 8
       float :b, 0, 32
       bits :c, <<1>>, 8

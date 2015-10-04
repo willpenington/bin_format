@@ -4,7 +4,7 @@ defmodule ConstantTests do
   defmodule ConstantPacket do
     use BinFormat
 
-    defpacket do
+    defformat do
       constant <<1,2,3>>
       integer :a, 10, 8
       constant <<5, 6>>

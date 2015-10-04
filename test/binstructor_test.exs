@@ -5,7 +5,7 @@ defmodule BinFormatTest do
   defmodule TestPacket do
     use BinFormat
     
-    defpacket do
+    defformat do
       integer :a, 0, 8
       integer :b, 15, 8
       binary :c, <<1,2,3,4>>, 4

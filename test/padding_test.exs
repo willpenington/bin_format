@@ -5,7 +5,7 @@ defmodule PaddingTest do
   defmodule PaddingPacket do
     use BinFormat
 
-    defpacket do
+    defformat do
       integer :a, 11, 8
       padding <<1,2>>
       padding <<3,4 :: integer-size(6) >>

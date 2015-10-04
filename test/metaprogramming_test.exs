@@ -4,7 +4,7 @@ defmodule MetaprogrammingTest do
   defmodule MetaPacket do
     use BinFormat
 
-    defpacket do
+    defformat do
       integer :first, 0, 8
 
       names = [{:a1, {:a2, <<1,2,3>>}}, {:b1, {:b2, <<2,3,4>>}}, {:c1, {:c2, <<3,4,5>>}}]

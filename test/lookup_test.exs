@@ -4,7 +4,7 @@ defmodule LookupTest do
   defmodule LookupPacket do
     use BinFormat
 
-    defpacket do
+    defformat do
 
 
       lookup :a, [{1, :foo}, {2, :bar}, {3, :baz}, {4, :bing}, {5, :boom}], :foo, :integer, 8

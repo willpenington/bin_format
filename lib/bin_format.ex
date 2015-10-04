@@ -49,7 +49,7 @@ defmodule BinFormat do
 
 
   """
-  defmacro defpacket(do: block) do
+  defmacro defformat(do: block) do
     members = define_fields(block)
 
     body = quote do
