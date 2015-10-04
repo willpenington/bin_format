@@ -75,21 +75,21 @@ defmodule BinFormat do
 
   If the struct is not defined using BinFormat the call will fail even if
   the module contains an `encode\1` function as the function may have
-  undesirable side effects, however implementing the `BinFormat.PacketProto`
+  undesirable side effects, however implementing the `BinFormat.Format`
   protocol for a type will cause it to work with this function.
   """
   def encode(struct) do
-    BinFormat.PacketProto.encodeimpl(struct)
+    BinFormat.Format.encode(struct)
   end
 
   @doc """
-  Automatically define an implementation of the `BinFormat.PacketProto`
+  Automatically define an implementation of the `BinFormat.Format`
   function for a Module.
   """
   def build_proto_impl(module) do
     Code.eval_quoted(quote do
-      defimpl BinFormat.PacketProto, for: unquote(module) do
-        def encodeimpl(spec) do
+      defimpl BinFormat.Format, for: unquote(module) do
+        def encode(spec) do
           apply(unquote(module), :encode, [spec])
         end
       end
