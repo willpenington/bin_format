@@ -1,4 +1,5 @@
 defmodule BinFormat do
+  alias BinFormat.Defines, as: Defines
 
   defmacro __using__(_opts) do
     quote do
@@ -62,9 +63,9 @@ defmodule BinFormat do
     members = define_fields(block)
 
     body = quote do
-      unquote(define_struct(members, __MODULE__))
-      unquote(define_decode(members, __MODULE__))
-      unquote(define_encode(members, __MODULE__))
+      unquote(Defines.define_struct(members, __MODULE__))
+      unquote(Defines.define_decode(members, __MODULE__))
+      unquote(Defines.define_encode(members, __MODULE__))
      
       # Has to be in the quote block to make sure it gets executed
       # after the module is defined 
@@ -138,98 +139,6 @@ defmodule BinFormat do
     end)
 
     result
-  end
-
-  defp define_struct(members, module) do
-    defs = Enum.map(members, fn(member) -> 
-      BinFormat.Field.struct_definition(member, module)
-    end)
-      
-    defs_filtered = Enum.filter_map(defs,
-      fn(pattern) -> pattern != :undefined end,
-      fn({:ok, pattern}) -> pattern end)
-
-    quote do
-      defstruct [unquote_splicing(defs_filtered)]
-    end
-  end 
-
-  defp define_decode(members, module) do
-    quote do
-      def decode(unquote(binary_match_pattern(members, module, "dec_"))) do
-        unquote(struct_build_pattern(members, module, "dec_"))
-      end
-    end
-  end
-
-  defp define_encode(members, module) do
-    quote do
-      def encode(var = unquote(struct_match_pattern(members, module, "enc_"))) do
-        unquote(binary_build_pattern(members, module, "enc_"))
-      end
-    end
-  end
-
-  defp binary_build_pattern(members, module, prefix) do
-    patterns = Enum.map(members, fn(member) -> 
-      BinFormat.Field.bin_build_pattern(member, module, prefix)
-    end)
-      
-    filtered_patterns = Enum.filter_map(patterns,
-      fn(pattern) -> pattern != :undefined end,
-      fn({:ok, pattern}) -> pattern end)
-
-    quote do
-      << unquote_splicing(filtered_patterns) >>
-    end
-  end
-
-  defp binary_match_pattern(members, module, prefix) do
-    patterns = Enum.map(members, fn(member) -> 
-      BinFormat.Field.bin_match_pattern(member, module, prefix)
-    end)
-    
-    filtered_patterns = []
-
-    filtered_patterns = Enum.filter_map(patterns,
-      fn(pattern) -> pattern != :undefined end,
-      fn({:ok, pattern}) -> pattern end)
-
-    quote do
-      << unquote_splicing(filtered_patterns) >>
-    end
-  end
-
-  defp struct_match_pattern(members, module, prefix) do
-    patterns = Enum.map(members, fn(member) -> 
-      BinFormat.Field.struct_match_pattern(member, module, prefix)
-    end)
-      
-    filtered_patterns = Enum.filter_map(patterns,
-      fn(pattern) -> pattern != :undefined end,
-      fn({:ok, pattern}) -> pattern end)
-
-    quote do
-      %__MODULE__{
-        unquote_splicing(filtered_patterns)
-       }
-    end
-  end
-
-  defp struct_build_pattern(members, module, prefix) do
-    patterns = Enum.map(members, fn(member) -> 
-      BinFormat.Field.struct_build_pattern(member, module, prefix)
-    end)
-      
-    filtered_patterns = Enum.filter_map(patterns,
-      fn(pattern) -> pattern != :undefined end,
-      fn({:ok, pattern}) -> pattern end)
-
-    quote do
-      %__MODULE__{
-        unquote_splicing(filtered_patterns)
-       }
-    end
   end
 
 end
