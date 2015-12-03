@@ -35,4 +35,43 @@ defmodule BinFormat.Defines do
     end
   end
 
+  @doc """
+  Automatically define an implementation of the `BinFormat.Format`
+  function for a Module.
+          
+  It is used internally and will be removed from the public API soon.
+  """
+
+  def build_proto_impl(module) do
+    #Code.eval_quoted(quote do
+      #defimpl BinFormat.Format, for: unquote(module) do
+        #def encode(spec) do
+          #apply(unquote(module), :encode, [spec])
+          #end
+        #end
+      #end)
+
+      #defimpl BinFormat.Format, for: module do
+        #def encode(spec) do
+          #module.encode(spec)
+          #end
+          #end
+  end
+
+
+  def build_code(members, module) do
+    quote do
+      unquote(define_struct(members, module))
+      unquote(define_decode(members, module))
+      unquote(define_encode(members, module))
+
+      #BinFormat.Defines.build_proto_impl(__MODULE__)
+      defimpl BinFormat.Format, for: __MODULE__ do
+        def encode(spec) do
+          unquote(module).encode(spec)
+        end
+      end
+    end
+  end
+
 end

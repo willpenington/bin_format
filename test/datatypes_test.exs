@@ -15,6 +15,8 @@ defmodule DataTypesTest do
       utf8 :g, "asdf"
       utf16 :h, "qwer" 
       utf32 :i, "uiop"
+      boolean :j, :true, 1
+      padding << 0 :: integer-size(7) >>
     end
   end
 

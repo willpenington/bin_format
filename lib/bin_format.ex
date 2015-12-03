@@ -60,20 +60,8 @@ defmodule BinFormat do
   ```
   """
   defmacro defformat(do: block) do
-    members = define_fields(block)
-
-    body = quote do
-      unquote(Defines.define_struct(members, __MODULE__))
-      unquote(Defines.define_decode(members, __MODULE__))
-      unquote(Defines.define_encode(members, __MODULE__))
-     
-      # Has to be in the quote block to make sure it gets executed
-      # after the module is defined 
-      BinFormat.build_proto_impl(__MODULE__)
-    end
-
-    body
-
+    define_fields(block)
+    |> BinFormat.Defines.build_code(__MODULE__)
   end
 
   @doc """
@@ -90,22 +78,6 @@ defmodule BinFormat do
     BinFormat.Format.encode(struct)
   end
 
-  @doc """
-  Automatically define an implementation of the `BinFormat.Format`
-  function for a Module.
-  
-  It is used internally and will be removed from the public API soon.
-  """
-  def build_proto_impl(module) do
-    Code.eval_quoted(quote do
-      defimpl BinFormat.Format, for: unquote(module) do
-        def encode(spec) do
-          apply(unquote(module), :encode, [spec])
-        end
-      end
-    end)
-  end
-
   defp define_fields(block) do
     name = String.to_atom("BinFormat.TempPacket" <> inspect(make_ref))
 
@@ -117,6 +89,7 @@ defmodule BinFormat do
         import BinFormat.FieldType.IpAddr
         import BinFormat.FieldType.Lookup
         import BinFormat.FieldType.Padding
+        import BinFormat.FieldType.Boolean
 
         @packet_members []
 
