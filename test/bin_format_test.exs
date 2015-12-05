@@ -18,10 +18,6 @@ defmodule BinFormatTest do
     %TestPacket{a: 34, b: 23, c: <<15,16,17, 18>>}
   end
 
-  test "the truth" do
-    assert 1 + 1 == 2
-  end
-
   test "defpacket sets up a struct" do
     s = %TestPacket{}
 
