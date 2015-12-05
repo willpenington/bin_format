@@ -38,6 +38,7 @@ Types supported in standard Elixir byte strings
 ### Convenience
 * `ip_addr` - IP addresses in the :inet {a,b,c,d} format
 * `lookup` - Replace a decoded value with an Elixir term from a list
+* `boolean` - Maps 0 to false and everything else to true
 
 ### Custom
 Additional field types can be added by creating implentations
