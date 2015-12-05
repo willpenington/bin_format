@@ -43,13 +43,13 @@ defmodule BinFormat.Defines do
   """
 
   def build_proto_impl(module) do
-    #Code.eval_quoted(quote do
-      #defimpl BinFormat.Format, for: unquote(module) do
-        #def encode(spec) do
-          #apply(unquote(module), :encode, [spec])
-          #end
-        #end
-      #end)
+    Code.eval_quoted(quote do
+      defimpl BinFormat.Format, for: unquote(module) do
+        def encode(spec) do
+          apply(unquote(module), :encode, [spec])
+        end
+      end
+    end)
 
       #defimpl BinFormat.Format, for: module do
         #def encode(spec) do
@@ -65,12 +65,13 @@ defmodule BinFormat.Defines do
       unquote(define_decode(members, module))
       unquote(define_encode(members, module))
 
-      #BinFormat.Defines.build_proto_impl(__MODULE__)
-      defimpl BinFormat.Format, for: __MODULE__ do
-        def encode(spec) do
-          unquote(module).encode(spec)
-        end
-      end
+      BinFormat.Defines.build_proto_impl(__MODULE__)
+      #defimpl BinFormat.Format, for: __MODULE__ do
+        #def encode(spec) do
+          #apply(unquote(module), :encode, [spec])
+          #unquote(module).encode(spec)
+          #end
+          #end
     end
   end
 
