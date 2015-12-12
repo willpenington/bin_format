@@ -26,6 +26,8 @@ defmodule BinFormat do
   must happen in the conext of the block. See [README](extra-readme.html) for
   details.
 
+  The 
+
   ## Examples
   A simple format with a constant header and three integer fields can be
   implemented as follows:
@@ -60,8 +62,32 @@ defmodule BinFormat do
   ```
   """
   defmacro defformat(do: block) do
-    define_fields(block)
-    |> BinFormat.Defines.build_code(__MODULE__)
+    quote do
+      BinFormat.FieldServer.start_link(__MODULE__)
+
+      import BinFormat.FieldType.Constant
+      import BinFormat.FieldType.Padding
+      import BinFormat.FieldType.Boolean
+      import BinFormat.FieldType.IpAddr
+      import BinFormat.FieldType.Lookup
+      import BinFormat.FieldType.BuiltIn
+
+
+      unquote(block)
+
+      require BinFormat.Defines
+      BinFormat.Defines.define_struct
+      BinFormat.Defines.define_encode
+      BinFormat.Defines.define_decode
+
+      BinFormat.FieldServer.stop(__MODULE__)
+      BinFormat.Defines.build_proto_impl(__MODULE__)
+
+    end
+
+    #define_fields(block, __CALLER__)
+    #|> List.flatten([])
+    #|> BinFormat.Defines.build_code(__MODULE__)
   end
 
   @doc """
@@ -78,40 +104,32 @@ defmodule BinFormat do
     BinFormat.Format.encode(struct)
   end
 
-  defp define_fields(block) do
-    name = String.to_atom("BinFormat.TempPacket" <> inspect(make_ref))
-
-    {result, _} = Code.eval_quoted(quote do
-
-      mod = defmodule unquote(name) do
-        import BinFormat.FieldType.BuiltIn
-        import BinFormat.FieldType.Constant
-        import BinFormat.FieldType.IpAddr
-        import BinFormat.FieldType.Lookup
-        import BinFormat.FieldType.Padding
-        import BinFormat.FieldType.Boolean
-
-        @packet_members []
-
-        unquote(block)
-
-        def packet_members() do
-          @packet_members
-        end
-
-        inspect(@packet_members)
-      end
-
-      members = Enum.reverse(unquote(name).packet_members())
-      
-      :code.delete(unquote(name))
-      :code.purge(unquote(name))
-
-
-      members
+  defp define_fields(block, env) do
+    block
+    |> Macro.expand(env)
+    |> extract_lines
+    |> Enum.map_reduce([], fn(line, context) ->
+        import_standard(line)
+        |> Code.eval_quoted(context, file: env.file, line: env.line)
     end)
+    |> elem(0)
+  end
 
-    result
+  defp import_standard(block) do
+    quote do
+      import BinFormat.FieldType.Constant
+      import BinFormat.FieldType.Padding
+      import BinFormat.FieldType.Boolean
+      import BinFormat.FieldType.IpAddr
+      import BinFormat.FieldType.Lookup
+      import BinFormat.FieldType.BuiltIn
+
+      List.wrap(unquote(block))
+    end
+  end
+
+  defp extract_lines({:__block__, _, lines}) do
+    lines
   end
 
 end

@@ -20,8 +20,10 @@ defmodule BinFormat.FieldType.Constant do
     field = quote do
       field = %BinFormat.FieldType.Constant{value: unquote(value)}
     end
-
-    BinFormat.FieldType.Util.add_field(field)
+    
+    quote do
+      BinFormat.FieldType.Util.add_field(unquote(field), __ENV__)
+    end
   end
 end
 

@@ -17,11 +17,14 @@ defmodule BinFormat.FieldType.IpAddr do
   endian encoding add the atom `:little` to the list of options.
   """
   defmacro ip_addr(name, default, options \\ []) do
-    quote do
+    field = quote do
       %BinFormat.FieldType.IpAddr{name: unquote(name), 
         default: unquote(default), options: unquote(options)}
     end
-    |> BinFormat.FieldType.Util.add_field()
+
+    quote do
+      BinFormat.FieldType.Util.add_field(unquote(field), __ENV__)
+    end
   end
 
 end

@@ -84,10 +84,22 @@ defmodule BinFormat.FieldType.Util do
   Adds an field to the end of the current packet structure. The field should be
   an implementation of the BinFormat.Field protocol.
   """
-  def add_field(field) do
+  def add_field(field, env) do
+    #IO.puts("Trying to add a field...")
+    #IO.puts("Field: #{inspect(field)}")
+    #IO.puts("To module #{inspect(env.module)}")
+
+    BinFormat.FieldServer.add_field(env.module, field)
+
     quote do
       # Actually adding to the head but this will be reversed
-      @packet_members [unquote(field) | @packet_members]
+      # @packet_members [unquote(field) | @packet_members]
+
+      #unquote(field)
+
+
+      BinFormat.FieldServer.add_field(unquote(env.module), unquote(field))
+
     end
   end
 end

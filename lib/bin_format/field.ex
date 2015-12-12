@@ -1,4 +1,5 @@
 defprotocol BinFormat.Field do
+  @fallback_to_any true
 
   @moduledoc """
   Converts information about the field into snippets of Elixir AST that can be
@@ -100,4 +101,27 @@ defprotocol BinFormat.Field do
   """
   def bin_match_pattern(field, module, prefix \\ "")
 
+end
+
+# Default implementation allows other code in the defformat block
+defimpl BinFormat.Field, for: Any do
+  def struct_definition(_, _) do
+    :undefined
+  end
+
+  def struct_build_pattern(_field, _module, _prefix) do
+    :undefined
+  end
+
+  def struct_match_pattern(_field, _module, _prefix) do
+    :undefined
+  end
+
+  def bin_build_pattern(_field, _module, _prefix) do
+    :undefined
+  end 
+  
+  def bin_match_pattern(_field, _module, _prefix) do
+    :undefined
+  end
 end

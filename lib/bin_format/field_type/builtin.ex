@@ -27,77 +27,79 @@ defmodule BinFormat.FieldType.BuiltIn do
   """
 
   # Generate quote block to add a standard type field to a format structure
-  defp standard_type(type, name, default, size, options) do
+  defp standard_type(type, name, default, size, options, env) do
     field = quote do
       %BinFormat.FieldType.BuiltIn{type: unquote(type), name: unquote(name),
         default: unquote(default), size: unquote(size), 
         options: unquote(options)}
     end
 
-    BinFormat.FieldType.Util.add_field(field)
+    quote do
+      BinFormat.FieldType.Util.add_field(unquote(field), __ENV__)
+    end
   end
   
   @doc """
   Add an Integer field to the format structure in defformat.
   """
   defmacro integer(name, default, size \\ :undefined, options \\ []) do
-    standard_type(:integer, name, default, size, options)
+    standard_type(:integer, name, default, size, options, __CALLER__)
   end
 
   @doc """
   Add a Binary field to the format structure in defformat.
   """
   defmacro binary(name, default, size \\ :undefined, options \\ []) do
-    standard_type(:binary, name, default, size, options)
+    standard_type(:binary, name, default, size, options, __CALLER__)
   end 
 
   @doc """
   Add a Float field to the format structure in defformat.
   """
   defmacro float(name, default, size \\ :undefined, options \\ []) do
-    standard_type(:float, name, default, size, options)
+    standard_type(:float, name, default, size, options, __CALLER__)
   end 
 
   @doc """
   Add a Bits field to the format structure in defformat.
   """
   defmacro bits(name, default, size \\ :undefined, options \\ []) do
-    standard_type(:bits, name, default, size, options)
+    standard_type(:bits, name, default, size, options, __CALLER__)
   end 
 
   @doc """
   Add a Bitstring field to the format structure in defformat.
   """
   defmacro bitstring(name, default, size \\ :undefined, options \\ []) do
-    standard_type(:bitstring, name, default, size, options)
+    standard_type(:bitstring, name, default, size, options, __CALLER__)
   end 
 
   @doc """
   Add a Bytes field to the format structure in defformat.
   """
   defmacro bytes(name, default, size \\ :undefined, options \\ []) do
-    standard_type(:bytes, name, default, size, options)
+    standard_type(:bytes, name, default, size, options, __CALLER__)
   end 
 
   @doc """
   Add a UTF8 field to the format structure in defformat.
   """
   defmacro utf8(name, default, options \\ []) do
-    standard_type(:utf8, name, default, :undefined, options)
+    standard_type(:utf8, name, default, :undefined, options, __CALLER__)
   end 
 
   @doc """
   Add a UTF16 field to the format structure in defformat.
   """
   defmacro utf16(name, default, options \\ []) do
-    standard_type(:utf16, name, default, :undefined, options)
+    standard_type(:utf16, name, default, :undefined, options, __CALLER__)
   end 
 
   @doc """
   Add a UTF32 field to the format structure in defformat.
   """
   defmacro utf32(name, default, options \\ []) do
-    standard_type(:utf32, name, default, :undefined, options)
+    standard_type(:utf32, name, default, :undefined, options, __CALLER__)
   end 
 
 end

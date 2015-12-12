@@ -23,7 +23,10 @@ defmodule BinFormat.FieldType.Lookup do
         lookup_vals: unquote(lookup_vals), default: unquote(default), 
         type: unquote(type), size: unquote(size), options: unquote(options)}
     end
-    BinFormat.FieldType.Util.add_field(field)
+
+    quote do
+      BinFormat.FieldType.Util.add_field(unquote(field), __ENV__)
+    end
   end
 
 end
