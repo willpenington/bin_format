@@ -61,12 +61,11 @@ defmodule BinFormat.Defines do
   end
 
 
-  defmacro build_code(members, module) do
+  defmacro build_code do
     quote do
-      #unquote(define_struct(members, module))
-      #unquote(define_decode(members, module))
-      #unquote(define_encode(members, module))
-
+      BinFormat.Defines.define_struct
+      BinFormat.Defines.define_decode
+      BinFormat.Defines.define_encode
       BinFormat.Defines.build_proto_impl(__MODULE__)
     end
   end

@@ -76,18 +76,11 @@ defmodule BinFormat do
       unquote(block)
 
       require BinFormat.Defines
-      BinFormat.Defines.define_struct
-      BinFormat.Defines.define_encode
-      BinFormat.Defines.define_decode
+      BinFormat.Defines.build_code
 
       BinFormat.FieldServer.stop(__MODULE__)
-      BinFormat.Defines.build_proto_impl(__MODULE__)
 
     end
-
-    #define_fields(block, __CALLER__)
-    #|> List.flatten([])
-    #|> BinFormat.Defines.build_code(__MODULE__)
   end
 
   @doc """
@@ -102,34 +95,6 @@ defmodule BinFormat do
   """
   def encode(struct) do
     BinFormat.Format.encode(struct)
-  end
-
-  defp define_fields(block, env) do
-    block
-    |> Macro.expand(env)
-    |> extract_lines
-    |> Enum.map_reduce([], fn(line, context) ->
-        import_standard(line)
-        |> Code.eval_quoted(context, file: env.file, line: env.line)
-    end)
-    |> elem(0)
-  end
-
-  defp import_standard(block) do
-    quote do
-      import BinFormat.FieldType.Constant
-      import BinFormat.FieldType.Padding
-      import BinFormat.FieldType.Boolean
-      import BinFormat.FieldType.IpAddr
-      import BinFormat.FieldType.Lookup
-      import BinFormat.FieldType.BuiltIn
-
-      List.wrap(unquote(block))
-    end
-  end
-
-  defp extract_lines({:__block__, _, lines}) do
-    lines
   end
 
 end
